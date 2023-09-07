@@ -1,8 +1,14 @@
 class Stock:
+    types = (str, int, float)
     def __init__(self, name, shares, price):
         self.name = name
         self.shares = shares
         self.price = price
+    
+    @classmethod
+    def from_row(cls, row):
+        values = [func(val) for func, val in zip(cls.types, row)]
+        return cls(*values)
 
     def cost(self):
         return self.shares * self.price
@@ -13,7 +19,11 @@ class Stock:
         else:
             raise Exception("number of shares must be int")
 
-def read_portfolio(filename):
+from decimal import Decimal
+class DStock(Stock):
+    types = (str, int, Decimal)
+
+def read_portfolio(filename, cls):
     import csv
     portfolio = []
     with open(filename) as f:
@@ -21,7 +31,11 @@ def read_portfolio(filename):
         headers = next(rows)
         # print(headers)
         for row in rows:
-            record = Stock(row[0], int(row[1]), float(row[2]))
+            # Original
+            # record = Stock(row[0], int(row[1]), float(row[2]))
+
+            # Improved
+            record = cls.from_row(row)
             portfolio.append(record)
     return portfolio
 
